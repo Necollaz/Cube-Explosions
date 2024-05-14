@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody), typeof(MeshRenderer))]
 public class Cube : MonoBehaviour
 {
     private int _minRandomCubes = 2;
@@ -23,35 +24,33 @@ public class Cube : MonoBehaviour
         }
     }
 
-    public List<Cube> Split(float explosionForce, float splitChance)
+    public List<Cube> Split(float explosionForce, float splitChanceDecrease)
     {
         List<Cube> newCubes = new List<Cube>();
         Vector3 center = transform.position;
 
-        for (int i = 0; i < Random.Range(_minRandomCubes, _maxRandomCube); i++)
+        if(Random.value < _splitChance)
         {
-            Cube newCube = Instantiate(this, center, Quaternion.identity);
-            newCube.transform.localScale = transform.localScale / _scaledownFactor;
-            newCube.GetComponent<Renderer>().material.color = Random.ColorHSV();
-            newCube.InitializeCube(center, Random.ColorHSV(), newCube.transform.localScale.x, _splitChance / _scaledownFactor);
-            Rigidbody newCubeRigidbody = newCube.GetComponent<Rigidbody>();
-
-            if (newCubeRigidbody != null)
+            for (int i = 0; i < Random.Range(_minRandomCubes, _maxRandomCube); i++)
             {
-                if (Random.Range(0f, 1f) < splitChance)
-                {
-                    Vector3 direction = (newCube.transform.position - center).normalized;
-                    newCubeRigidbody.AddForce(direction * explosionForce, ForceMode.Impulse);
-                    splitChance /= _scaledownFactor;
-                }
-                else
-                {
-                    Destroy(newCube.gameObject);
-                }
-            }
+                Cube newCube = Instantiate(this, center, Quaternion.identity);
+                newCube.transform.localScale = transform.localScale / _scaledownFactor;
+                newCube.GetComponent<Renderer>().material.color = Random.ColorHSV();
+                newCube.InitializeCube(center, Random.ColorHSV(), newCube.transform.localScale.x, _splitChance / splitChanceDecrease);
 
-            newCubes.Add(newCube);
+                Rigidbody newCubeRigidbody;
+
+                if(newCube.TryGetComponent(out newCubeRigidbody))
+                {
+                    Vector3 explosionDirection = new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), Random.Range(-1f, 1f)).normalized;
+                    newCubeRigidbody.AddForce(explosionDirection.normalized * explosionForce, ForceMode.Impulse);
+                }
+
+                newCubes.Add(newCube);
+            }
         }
+
+        Destroy(gameObject);
 
         return newCubes;
     }
