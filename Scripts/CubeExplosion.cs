@@ -2,19 +2,33 @@ using UnityEngine;
 
 public class CubeExplosion : MonoBehaviour
 {
-    [SerializeField] private float _explosionForce = 100f;
-    [SerializeField] private float _explosionRadius = 5f;
+    [SerializeField] private float _baseExplosionForce = 100f;
+    [SerializeField] private float _baseExplosionRadius = 5f;
 
-    public void Explode(Vector3 explosionPosition)
+    public void Explode(Vector3 explosionPosition, float explosionForce, float explosionRadius)
     {
-        Collider[] colliders = Physics.OverlapSphere(explosionPosition, _explosionRadius);
+        Collider[] colliders = Physics.OverlapSphere(explosionPosition, explosionRadius);
 
-        foreach (Collider cubeCollider in colliders)
+        foreach (Collider collider in colliders)
         {
-            if (cubeCollider.TryGetComponent<Rigidbody>(out Rigidbody rb))
+            if (collider.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
             {
-                rb.AddExplosionForce(_explosionForce, explosionPosition, _explosionRadius);
+                Vector3 direction = (rigidbody.transform.position - explosionPosition).normalized;
+                float distance = Vector3.Distance(explosionPosition, rigidbody.transform.position);
+                float force = explosionForce * (1 - (distance / explosionRadius));
+
+                rigidbody.AddForce(direction * force, ForceMode.Impulse);
             }
         }
+    }
+
+    public float CalculateExplosionForce(Cube cube)
+    {
+        return _baseExplosionForce / cube.transform.localScale.magnitude;
+    }
+
+    public float CalculateExplosionRadius(Cube cube)
+    {
+        return _baseExplosionRadius * cube.transform.localScale.magnitude;
     }
 }

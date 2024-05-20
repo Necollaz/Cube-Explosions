@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class PlayerInteraction : MonoBehaviour
 {
-    [SerializeField] private CubeSpawner cubeSpawner;
-    [SerializeField] private CubeExplosion cubeExplosion;
+    [SerializeField] private CubeSpawner _cubeSpawner;
+    [SerializeField] private CubeExplosion _cubeExplosion;
 
     private Camera _mainCamera;
 
@@ -32,17 +32,19 @@ public class PlayerInteraction : MonoBehaviour
 
                     if (cube != null)
                     {
+                        Vector3 explosionPosition = cube.transform.position;
+                        float explosionForce = _cubeExplosion.CalculateExplosionForce(cube);
+                        float explosionRadius = _cubeExplosion.CalculateExplosionRadius(cube);
+
                         if (Random.value <= cube.SplitChance)
                         {
-                            Vector3 explosionPosition = cube.transform.position;
                             Destroy(hit.collider.gameObject);
-                            cubeSpawner.SpawnCubes(explosionPosition, cube.SplitChance, cube.transform.localScale);
-                            cubeExplosion.Explode(explosionPosition);
+                            _cubeSpawner.SpawnCubes(explosionPosition, cube.SplitChance, cube.transform.localScale);
                         }
                         else
                         {
                             Destroy(hit.collider.gameObject);
-                            cubeExplosion.Explode(cube.transform.position);
+                            _cubeExplosion.Explode(explosionPosition, explosionForce, explosionRadius);
                         }
                     }
                 }
