@@ -26,26 +26,21 @@ public class PlayerInteraction : MonoBehaviour
 
             if (Physics.Raycast(ray, out hit))
             {
-                if (hit.collider.CompareTag("Cube"))
+                if (hit.collider.TryGetComponent<Cube>(out Cube cube))
                 {
-                    Cube cube = hit.collider.GetComponent<Cube>();
+                    Vector3 explosionPosition = cube.transform.position;
+                    float explosionForce = _cubeExplosion.CalculateExplosionForce(cube);
+                    float explosionRadius = _cubeExplosion.CalculateExplosionRadius(cube);
 
-                    if (cube != null)
+                    if (Random.value <= cube.SplitChance)
                     {
-                        Vector3 explosionPosition = cube.transform.position;
-                        float explosionForce = _cubeExplosion.CalculateExplosionForce(cube);
-                        float explosionRadius = _cubeExplosion.CalculateExplosionRadius(cube);
-
-                        if (Random.value <= cube.SplitChance)
-                        {
-                            Destroy(hit.collider.gameObject);
-                            _cubeSpawner.SpawnCubes(explosionPosition, cube.SplitChance, cube.transform.localScale);
-                        }
-                        else
-                        {
-                            Destroy(hit.collider.gameObject);
-                            _cubeExplosion.Explode(explosionPosition, explosionForce, explosionRadius);
-                        }
+                        Destroy(hit.collider.gameObject);
+                        _cubeSpawner.SpawnCubes(explosionPosition, cube.SplitChance, cube.transform.localScale);
+                    }
+                    else
+                    {
+                        Destroy(hit.collider.gameObject);
+                        _cubeExplosion.Explode(explosionPosition, explosionForce, explosionRadius);
                     }
                 }
             }
