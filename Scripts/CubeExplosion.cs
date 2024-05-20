@@ -1,50 +1,20 @@
-using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Cube))]
 public class CubeExplosion : MonoBehaviour
 {
-    [SerializeField] private int _minRandomCubes = 2;
-    [SerializeField] private int _maxRandomCubes = 7;
-    [SerializeField] private float _scaledownFactor = 2f;
+    [SerializeField] private float _explosionForce = 100f;
+    [SerializeField] private float _explosionRadius = 5f;
 
-    private Cube _cube;
-
-    private void Awake()
+    public void Explode(Vector3 explosionPosition)
     {
-        _cube = GetComponent<Cube>();
-    }
+        Collider[] colliders = Physics.OverlapSphere(explosionPosition, _explosionRadius);
 
-    public List<Cube> Explode(float explosionForce, float splitChanceDecrease)
-    {
-        List<Cube> newCubes = new List<Cube>();
-        Vector3 center = _cube.transform.position;
-
-        if (Random.value < _cube.SplitChance)
+        foreach (Collider cubeCollider in colliders)
         {
-            for (int i = 0; i < Random.Range(_minRandomCubes, _maxRandomCubes); i++)
+            if (cubeCollider.TryGetComponent<Rigidbody>(out Rigidbody rb))
             {
-                Vector3 position = center + Random.insideUnitSphere;
-                Color color = Random.ColorHSV();
-                float scale = _cube.transform.localScale.x / _scaledownFactor;
-
-                Cube newCube = Instantiate(_cube, position, Quaternion.identity);
-                newCube.Initialize(position, color, scale, _cube.SplitChance / splitChanceDecrease);
-
-                Rigidbody newCubeRigidbody = newCube.GetComponent<Rigidbody>();
-
-                if (newCubeRigidbody != null)
-                {
-                    Vector3 explosionDirection = Random.onUnitSphere;
-                    newCubeRigidbody.AddForce(explosionDirection * explosionForce, ForceMode.Impulse);
-                }
-
-                newCubes.Add(newCube);
+                rb.AddExplosionForce(_explosionForce, explosionPosition, _explosionRadius);
             }
         }
-
-        Destroy(_cube.gameObject);
-
-        return newCubes;
     }
 }

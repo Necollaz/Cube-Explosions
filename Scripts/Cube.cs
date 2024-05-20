@@ -1,29 +1,29 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody), typeof(MeshRenderer))]
+[RequireComponent(typeof(Rigidbody), typeof(MeshRenderer), typeof(BoxCollider))]
 public class Cube : MonoBehaviour
 {
-    public float SplitChance { get; private set; }
-
     private Rigidbody _cubeRigidbody;
-    private Renderer _cubeRenderer;
+    private MeshRenderer _cubeRenderer;
+
+    public float SplitChance { get; private set; }
 
     private void Awake()
     {
         _cubeRigidbody = GetComponent<Rigidbody>();
-        _cubeRenderer = GetComponent<Renderer>();
+        _cubeRenderer = GetComponent<MeshRenderer>();
     }
 
-    public void Initialize(Vector3 position, Color color, float scale, float splitChance)
+    public void Initialize(Vector3 position, Color color, Vector3 scale, float splitChance)
     {
-        transform.position = position;
-        transform.localScale = Vector3.one * scale;
-        _cubeRenderer.material.color = color;
-        SplitChance = splitChance;
-
-        if (_cubeRigidbody != null)
+        if (TryGetComponent(out _cubeRigidbody))
         {
             _cubeRigidbody.AddForce(Physics.gravity, ForceMode.Acceleration);
         }
+
+        transform.position = position;
+        transform.localScale = scale;
+        _cubeRenderer.material.color = color;
+        SplitChance = splitChance;
     }
 }

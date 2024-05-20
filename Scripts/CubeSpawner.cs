@@ -1,76 +1,51 @@
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.Generic;
 
-[RequireComponent(typeof(Cube), typeof(CubeExplosion))]
 public class CubeSpawner : MonoBehaviour
 {
     [SerializeField] private Cube _cubePrefab;
-    [SerializeField] private float _explosionForce = 10f;
-    [SerializeField] private float _invisibleWallDistance;
-    [SerializeField] private int _maxNumberCubes = 10;
-    [SerializeField] private float _scale = 2f;
-    [SerializeField] private float _splitChance = 2f;
+    [SerializeField] private int minCubes = 2;
+    [SerializeField] private int maxCubes = 6;
+    [SerializeField] private float _scaledownFactor = 0.5f;
+    [SerializeField] private float _invisibleWallDistance = 5f;
 
     private List<Cube> _cubes;
-    private Camera _mainCamera;
-    private CubeExplosion _explosion;
-    private Cube _cube;
-
-    private void Awake()
-    {
-        _explosion = GetComponent<CubeExplosion>();
-        _cube = GetComponent<Cube>();
-    }
+    private Vector3 _initialScale = new Vector3(5f, 5f, 5f);
+    private int _maxSpawnCubes = 5;
 
     private void Start()
     {
-        _mainCamera = Camera.main;
+        SetupInitialCubes();
+    }
+
+    public void SpawnCubes(Vector3 explosionPosition, float parentSplitChance, Vector3 parentScale)
+    {
+        int numOfCubes = Random.Range(minCubes, maxCubes + 1);
+        float newSplitChance = parentSplitChance / 2f;
+        Vector3 newScale = parentScale * _scaledownFactor;
+
+        for (int i = 0; i < numOfCubes; i++)
+        {
+            Vector3 spawnPosition = explosionPosition + Random.insideUnitSphere * _invisibleWallDistance;
+            spawnPosition.y = Mathf.Max(1f, spawnPosition.y);
+            Cube newCube = Instantiate(_cubePrefab, spawnPosition, Quaternion.identity);
+            newCube.Initialize(spawnPosition, Random.ColorHSV(), newScale, newSplitChance);
+            _cubes.Add(newCube);
+        }
+    }
+
+    private void SetupInitialCubes()
+    {
         _cubes = new List<Cube>();
 
-        for (int i = 0; i < _maxNumberCubes; i++)
+        for (int i = 0; i < _maxSpawnCubes; i++)
         {
-            SpawnRandomCube();
+            Vector3 spawnPosition = Random.insideUnitSphere * _invisibleWallDistance;
+            spawnPosition.y = Mathf.Max(1f, spawnPosition.y);
+
+            Cube newCube = Instantiate(_cubePrefab, spawnPosition, Quaternion.identity);
+            newCube.Initialize(spawnPosition, Random.ColorHSV(), _initialScale, 1f);
+            _cubes.Add(newCube);
         }
-    }
-
-    private void Update()
-    {
-        InteractWithCube();
-    }
-
-    private void InteractWithCube()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            RaycastHit hit;
-            Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
-
-            if (Physics.Raycast(ray, out hit) && hit.collider.TryGetComponent(out Cube hitCube))
-            {
-                _explosion = hitCube.GetComponent<CubeExplosion>();
-
-                if(_explosion != null)
-                {
-                    List<Cube> newCubes = _explosion.Explode(_explosionForce, _scale);
-                    _cubes.Remove(hitCube);
-                    _cubes.AddRange(newCubes);
-                }
-            }
-        }
-    }
-
-    private void SpawnRandomCube()
-    {
-        Vector3 spawnPosition = Random.insideUnitSphere * _invisibleWallDistance;
-        spawnPosition.y = Mathf.Max(1f, spawnPosition.y);
-
-        Cube newCube = Instantiate(_cubePrefab, spawnPosition, Quaternion.identity);
-
-        float fixedScale = 3f;
-        newCube.transform.localScale = new Vector3(fixedScale, fixedScale, fixedScale);
-
-        newCube.Initialize(spawnPosition, Random.ColorHSV(), fixedScale, _splitChance);
-
-        _cubes.Add(newCube);
     }
 }
