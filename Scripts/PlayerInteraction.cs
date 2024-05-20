@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class PlayerInteraction : MonoBehaviour
 {
-    [SerializeField] private CubeSpawner cubeSpawner;
-    [SerializeField] private CubeExplosion cubeExplosion;
+    [SerializeField] private CubeSpawner _cubeSpawner;
+    [SerializeField] private CubeExplosion _cubeExplosion;
 
     private Camera _mainCamera;
 
