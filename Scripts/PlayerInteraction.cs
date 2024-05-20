@@ -36,13 +36,13 @@ public class PlayerInteraction : MonoBehaviour
                         {
                             Vector3 explosionPosition = cube.transform.position;
                             Destroy(hit.collider.gameObject);
-                            cubeSpawner.SpawnCubes(explosionPosition, cube.SplitChance, cube.transform.localScale);
-                            cubeExplosion.Explode(explosionPosition);
+                            _cubeSpawner.SpawnCubes(explosionPosition, cube.SplitChance, cube.transform.localScale);
+                            _cubeExplosion.Explode(explosionPosition);
                         }
                         else
                         {
                             Destroy(hit.collider.gameObject);
-                            cubeExplosion.Explode(cube.transform.position);
+                            _cubeExplosion.Explode(cube.transform.position);
                         }
                     }
                 }
