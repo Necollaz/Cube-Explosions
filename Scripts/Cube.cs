@@ -16,11 +16,7 @@ public class Cube : MonoBehaviour
 
     public void Initialize(Vector3 position, Color color, Vector3 scale, float splitChance)
     {
-        if (TryGetComponent(out _rigidbody))
-        {
-            _rigidbody.AddForce(Physics.gravity, ForceMode.Acceleration);
-        }
-
+        _rigidbody.AddForce(Physics.gravity, ForceMode.Acceleration);
         transform.position = position;
         transform.localScale = scale;
         _renderer.material.color = color;

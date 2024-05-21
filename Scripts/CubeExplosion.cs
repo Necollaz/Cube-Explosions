@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class CubeExplosion : MonoBehaviour
 {
-    [SerializeField] private float _baseExplosionForce = 100f;
-    [SerializeField] private float _baseExplosionRadius = 5f;
+    [SerializeField] private float _force = 200f;
+    [SerializeField] private float _radius = 50f;
 
     public void Explode(Vector3 explosionPosition, float explosionForce, float explosionRadius)
     {
@@ -22,13 +22,13 @@ public class CubeExplosion : MonoBehaviour
         }
     }
 
-    public float CalculateExplosionForce(Cube cube)
+    public float CalculateForce(Cube cube)
     {
-        return _baseExplosionForce / cube.transform.localScale.magnitude;
+        return _force / cube.transform.localScale.magnitude;
     }
 
-    public float CalculateExplosionRadius(Cube cube)
+    public float CalculateRadius(Cube cube)
     {
-        return _baseExplosionRadius * cube.transform.localScale.magnitude;
+        return _radius * cube.transform.localScale.magnitude;
     }
 }
