@@ -26,11 +26,9 @@ public class PlayerInteraction : MonoBehaviour
 
             if (Physics.Raycast(ray, out hit))
             {
-                if (hit.collider.TryGetComponent<Cube>(out Cube cube))
+                if (hit.collider.TryGetComponent(out Cube cube))
                 {
                     Vector3 explosionPosition = cube.transform.position;
-                    float explosionForce = _explosion.CalculateForce(cube);
-                    float explosionRadius = _explosion.CalculateRadius(cube);
 
                     if (Random.value <= cube.SplitChance)
                     {
@@ -38,7 +36,7 @@ public class PlayerInteraction : MonoBehaviour
                     }
                     else
                     {
-                        _explosion.Explode(explosionPosition, explosionForce, explosionRadius);
+                        _explosion.Explode(cube);
                     }
 
                     Destroy(hit.collider.gameObject);
